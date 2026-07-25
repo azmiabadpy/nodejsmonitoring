@@ -38,7 +38,7 @@ This project implements an end-to-end monitoring stack:
 │  └────────────────────────┘  │
 └──────────────────────────────┘
 
-🎯 Objectives
+# 🎯 Objectives
 
 This project demonstrates:
 
@@ -79,7 +79,18 @@ monitor/
     ├── nodejs-app-ec2.png
     └── grafana-alert-firing.png
 
-🚀 Node.js Application
+# 🚀 Node.js Application
 
 The Node.js application exposes the following endpoints:
+
+GET /
+GET /health
+GET /metrics
+
+The application is containerized using Docker.
+
+Container name:
+monitorc
+
+
 
