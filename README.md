@@ -51,3 +51,35 @@ Monitoring EC2 infrastructure using Node Exporter
 Connecting Prometheus with Grafana
 Creating Grafana dashboards
 Creating and testing an application-down alert
+
+| Technology    | Purpose                        |
+| ------------- | ------------------------------ |
+| Node.js       | Application runtime            |
+| Express.js    | Web application framework      |
+| Docker        | Containerization               |
+| AWS EC2       | Cloud infrastructure           |
+| Prometheus    | Metrics collection and storage |
+| Grafana       | Visualization and alerting     |
+| Node Exporter | EC2/Linux host monitoring      |
+| PromQL        | Query language for Prometheus  |
+
+
+monitor/
+│
+├── app.js
+├── package.json
+├── package-lock.json
+├── Dockerfile
+├── .dockerignore
+│
+├── monitoring/
+│   └── prometheus.yml
+│
+└── images/
+    ├── nodejs-app-ec2.png
+    └── grafana-alert-firing.png
+
+🚀 Node.js Application
+
+The Node.js application exposes the following endpoints:
+
