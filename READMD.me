@@ -1,0 +1,637 @@
+# 🚀 Node.js Application Monitoring with Prometheus & Grafana
+
+An end-to-end DevOps monitoring project that demonstrates how to deploy a containerized Node.js application on AWS EC2 and monitor application and infrastructure metrics using **Prometheus, Grafana, and Node Exporter**.
+
+---
+
+## 📌 Project Overview
+
+This project implements a complete monitoring and observability stack on an AWS EC2 instance.
+
+The Node.js application exposes application metrics through a `/metrics` endpoint. Prometheus collects these metrics, while Grafana visualizes the data through dashboards and provides alerting capabilities.
+
+### 🏗️ Architecture
+
+```text
+                    AWS EC2 Instance
+┌────────────────────────────────────────────────────┐
+│                                                    │
+│        Node.js Application                         │
+│        Docker Container                            │
+│        Port: 3000                                  │
+│              │                                     │
+│              │ /metrics                            │
+│              ▼                                     │
+│        Prometheus                                 │
+│        Port: 9090                                  │
+│              │                                     │
+│              ▼                                     │
+│        Grafana                                    │
+│        Port: 3001                                  │
+│                                                    │
+│        Node Exporter                              │
+│        Port: 9100                                  │
+│        EC2 Host Metrics                            │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Project Objectives
+
+This project demonstrates:
+
+* Deploying a Node.js application on AWS EC2
+* Containerizing applications using Docker
+* Exposing custom application metrics
+* Collecting metrics using Prometheus
+* Monitoring Linux infrastructure using Node Exporter
+* Creating Grafana dashboards
+* Monitoring application performance
+* Monitoring EC2 infrastructure performance
+* Creating Grafana alert rules
+* Detecting application downtime automatically
+* Using Docker networking for service communication
+
+---
+
+## 🛠️ Technology Stack
+
+| Technology    | Purpose                    |
+| ------------- | -------------------------- |
+| Node.js       | Application Runtime        |
+| Express.js    | Web Framework              |
+| Docker        | Containerization           |
+| AWS EC2       | Cloud Infrastructure       |
+| Prometheus    | Metrics Collection         |
+| Grafana       | Visualization and Alerting |
+| Node Exporter | Linux Host Monitoring      |
+| PromQL        | Metrics Query Language     |
+
+---
+
+# 📂 Project Structure
+
+```text
+monitor/
+│
+├── app.js
+├── metrics.js
+├── package.json
+├── package-lock.json
+├── Dockerfile
+├── .dockerignore
+├── .gitignore
+│
+├── monitoring/
+│   └── prometheus.yml
+│
+└── images/
+    ├── grafana-dashboard-1.png
+    ├── grafana-dashboard-2.png
+    ├── grafana-dashboard-3.png
+    ├── grafana-alerting-1.png
+    ├── grafana-alerting-2.png
+    └── grafana-alerting-3.png
+```
+
+> The `images/` directory contains screenshots of the Grafana dashboards and alerting configuration.
+
+---
+
+# 🚀 Node.js Application
+
+The application exposes the following endpoints:
+
+```text
+GET /
+GET /health
+GET /metrics
+```
+
+### Application Port
+
+```text
+3000
+```
+
+Access the application using:
+
+```text
+http://<EC2_PUBLIC_IP>:3000
+```
+
+---
+
+# 📊 Application Metrics
+
+The Node.js application exposes metrics through:
+
+```text
+/metrics
+```
+
+Example:
+
+```bash
+curl http://localhost:3000/metrics
+```
+
+## HTTP Metrics
+
+The application collects metrics such as:
+
+* Total HTTP requests
+* HTTP request duration
+* HTTP response status codes
+* Request methods
+* Request latency
+
+Example metrics:
+
+```text
+http_requests_total
+http_request_duration_seconds
+```
+
+## Node.js Runtime Metrics
+
+The application also exposes runtime metrics, including:
+
+```text
+nodejs_heap_size_total_bytes
+nodejs_heap_size_used_bytes
+nodejs_eventloop_lag_mean_seconds
+nodejs_gc_duration_seconds
+process_cpu_user_seconds_total
+process_resident_memory_bytes
+```
+
+These metrics help monitor the health and performance of the Node.js application.
+
+---
+
+# 🐳 Docker Deployment
+
+The application runs inside a Docker container.
+
+### Container Name
+
+```text
+monitorc
+```
+
+### Application Port
+
+```text
+3000
+```
+
+Check running containers:
+
+```bash
+sudo docker ps
+```
+
+View application logs:
+
+```bash
+sudo docker logs monitorc
+```
+
+---
+
+# 🌐 Docker Networking
+
+The monitoring components communicate through Docker networking.
+
+Prometheus scrapes the Node.js application using:
+
+```text
+http://monitorc:3000/metrics
+```
+
+Prometheus scrapes Node Exporter using:
+
+```text
+http://node-exporter:9100/metrics
+```
+
+Using Docker container names allows services to communicate internally without relying on public IP addresses.
+
+---
+
+# 📈 Prometheus
+
+Prometheus collects metrics from:
+
+* Node.js application
+* Node Exporter
+
+### Prometheus Port
+
+```text
+9090
+```
+
+Access Prometheus:
+
+```text
+http://<EC2_PUBLIC_IP>:9090
+```
+
+## Prometheus Configuration
+
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: nodejs-app
+    static_configs:
+      - targets: ["monitorc:3000"]
+
+  - job_name: node-exporter
+    static_configs:
+      - targets: ["node-exporter:9100"]
+```
+
+Verify Prometheus targets:
+
+```bash
+curl http://localhost:9090/api/v1/targets
+```
+
+Expected targets:
+
+```text
+nodejs-app       UP
+node-exporter    UP
+```
+
+---
+
+# 🖥️ Node Exporter
+
+Node Exporter collects Linux host and EC2 infrastructure metrics.
+
+### Port
+
+```text
+9100
+```
+
+Check Node Exporter metrics:
+
+```bash
+curl http://localhost:9100/metrics
+```
+
+Node Exporter provides metrics related to:
+
+* CPU usage
+* Memory usage
+* Disk usage
+* Filesystem usage
+* Network traffic
+
+Example metrics:
+
+```text
+node_cpu_seconds_total
+node_memory_MemAvailable_bytes
+node_filesystem_size_bytes
+node_network_receive_bytes_total
+```
+
+---
+
+# 📊 Grafana Dashboards
+
+Grafana is used to visualize metrics collected by Prometheus.
+
+### Grafana Container Port
+
+```text
+3000
+```
+
+### EC2 Host Port
+
+```text
+3001
+```
+
+Access Grafana:
+
+```text
+http://<EC2_PUBLIC_IP>:3001
+```
+
+The Grafana dashboards provide visibility into:
+
+### Application Monitoring
+
+* HTTP request count
+* Request rate
+* Request latency
+* Response status codes
+* Node.js heap memory
+* Node.js CPU usage
+* Application availability
+
+### Infrastructure Monitoring
+
+* EC2 CPU usage
+* Memory usage
+* Disk usage
+* Filesystem usage
+* Network traffic
+
+---
+
+# 📸 Grafana Dashboard Screenshots
+
+The following screenshots demonstrate the Grafana monitoring dashboards created for this project.
+
+## 📊 Node.js Application Metrics
+
+This dashboard visualizes application-level metrics such as HTTP requests, request rates, and Node.js performance.
+
+![Node.js Application Monitoring](./images/New%20panel%20-%20nodejs%20-%20nodejs%20monitoring%20-%20Alerting%20-%20Grafana%20-%20Google%20Chrome%2025-07-2026%2021_28_06%20\(1\).png)
+
+---
+
+## 📈 Application Performance Monitoring
+
+Grafana dashboards provide visibility into application performance and runtime metrics collected from the Node.js application.
+
+![Application Performance Monitoring](./images/New%20panel%20-%20nodejs%20-%20nodejs%20monitoring%20-%20Alerting%20-%20Grafana%20-%20Google%20Chrome%2025-07-2026%2021_28_06.png)
+
+---
+
+## 📉 Node.js Runtime Metrics
+
+Node.js runtime metrics such as heap usage, CPU usage, and application performance are visualized using Grafana.
+
+![Node.js Runtime Metrics](./images/New%20panel%20-%20nodejs%20-%20nodejs%20monitoring%20-%20Alerting%20-%20Grafana%20-%20Google%20Chrome%2025-07-2026%2021_28_07%20\(1\).png)
+
+---
+
+## 📊 Monitoring Dashboard
+
+The Grafana dashboard combines application metrics collected by Prometheus and provides a centralized view of the Node.js application.
+
+![Grafana Monitoring Dashboard](./images/New%20panel%20-%20nodejs%20-%20nodejs%20monitoring%20-%20Alerting%20-%20Grafana%20-%20Google%20Chrome%2025-07-2026%2021_28_07.png)
+
+---
+
+# 🚨 Grafana Alerting
+
+A Grafana alert rule was configured to monitor application availability.
+
+### PromQL Query
+
+```promql
+up{job="nodejs-app"}
+```
+
+### Alert Condition
+
+```text
+up < 1
+```
+
+The alert detects when the Node.js application becomes unavailable.
+
+## Alert Flow
+
+```text
+Application Running
+        │
+        ▼
+   Alert Normal
+        │
+        │ docker stop monitorc
+        ▼
+ Application Down
+        │
+        ▼
+     Pending
+        │
+        ▼
+    Firing 🚨
+        │
+        │ docker start monitorc
+        ▼
+Application Running
+        │
+        ▼
+   Alert Normal
+```
+
+---
+
+# 🚨 Grafana Alert Screenshots
+
+The following screenshots demonstrate the Grafana alerting configuration and application downtime detection.
+
+## Alert Configuration
+
+![Grafana Alert Configuration](./images/New%20panel%20-%20nodejs%20-%20nodejs%20monitoring%20-%20Alerting%20-%20Grafana%20-%20Google%20Chrome%2025-07-2026%2021_37_41.png)
+
+---
+
+## Alert Firing When Application Is Down
+
+The application container was stopped to simulate application downtime.
+
+```bash
+sudo docker stop monitorc
+```
+
+Grafana detected that the application was unavailable and triggered the configured alert.
+
+![Grafana Alert Firing](./images/New%20panel%20-%20nodejs%20-%20nodejs%20monitoring%20-%20Alerting%20-%20Grafana%20-%20Google%20Chrome%2025-07-2026%2021_37_49.png)
+
+---
+
+## Alert Recovery
+
+After restarting the application:
+
+```bash
+sudo docker start monitorc
+```
+
+The application returned to a healthy state and the Grafana alert returned to normal.
+
+![Grafana Alert Recovery](./images/Screenshot%2025-07-2026%2021_37_16.png)
+
+---
+
+# 🛠️ Useful Commands
+
+## Check Running Containers
+
+```bash
+sudo docker ps
+```
+
+## View Application Logs
+
+```bash
+sudo docker logs monitorc
+```
+
+## View Prometheus Logs
+
+```bash
+sudo docker logs prometheus
+```
+
+## View Application Metrics
+
+```bash
+curl http://localhost:3000/metrics
+```
+
+## View Node Exporter Metrics
+
+```bash
+curl http://localhost:9100/metrics
+```
+
+## Check Prometheus Targets
+
+```bash
+curl http://localhost:9090/api/v1/targets
+```
+
+## Stop the Application
+
+```bash
+sudo docker stop monitorc
+```
+
+## Start the Application
+
+```bash
+sudo docker start monitorc
+```
+
+---
+
+# 📚 DevOps Concepts Demonstrated
+
+* Docker Containerization
+* Docker Networking
+* AWS EC2 Deployment
+* Prometheus Monitoring
+* Grafana Dashboards
+* Grafana Alerting
+* PromQL
+* Node Exporter
+* Application Monitoring
+* Infrastructure Monitoring
+* Health Checks
+* Observability
+* Application Availability Monitoring
+
+---
+
+# 🚀 Future Improvements
+
+Planned improvements include:
+
+* Docker Compose deployment
+* Persistent volumes for Prometheus and Grafana
+* Alertmanager integration
+* Email notifications
+* Slack notifications
+* Nginx reverse proxy
+* HTTPS using SSL/TLS
+* GitHub Actions CI/CD
+* Terraform infrastructure automation
+* Loki log aggregation
+* ELK Stack integration
+* Advanced Grafana dashboards
+* CPU, memory, disk, and network alerts
+
+---
+
+# 🎯 Project Outcome
+
+This project demonstrates a complete monitoring pipeline:
+
+```text
+Node.js Application
+        │
+        ▼
+Docker Container
+        │
+        ▼
+AWS EC2
+        │
+        ▼
+Prometheus
+        │
+        ▼
+Node Exporter
+        │
+        ▼
+Grafana Dashboards
+        │
+        ▼
+Grafana Alerts
+```
+
+The solution provides monitoring for:
+
+### ✅ Application Health
+
+* HTTP requests
+* Request latency
+* Node.js runtime metrics
+* Application availability
+
+### ✅ Infrastructure Health
+
+* CPU
+* Memory
+* Disk
+* Filesystem
+* Network
+
+### ✅ Alerting
+
+The monitoring system automatically detects application downtime and generates alerts, enabling faster incident detection and response.
+
+---
+
+# 👨‍💻 Author
+
+## Abadur Rahaman Azmi
+
+### Cloud & DevOps Engineer
+
+### Skills
+
+* AWS
+* Docker
+* Kubernetes
+* Terraform
+* Jenkins
+* CI/CD
+* Linux
+* Prometheus
+* Grafana
+* Monitoring & Observability
+
+---
+
+## 📌 About This Project
+
+A production-style Node.js monitoring and observability project using Prometheus and Grafana to collect application metrics, visualize system performance, monitor EC2 infrastructure, and configure real-time application availability alerting.
